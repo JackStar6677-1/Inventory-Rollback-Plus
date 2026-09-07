@@ -66,6 +66,14 @@ public class RollbackListMenu {
         //Check how many backups there are in total
         int backups = playerData.getAmountOfBackups();
 
+        // A player without backups has no timestamp page to load. Previously the
+        // pagination clamp changed pageNumber to 0 and the storage adapter then
+        // received a negative sub-list index.
+        if (backups <= 0) {
+            pageNumber = 1;
+            return;
+        }
+
         //How many rows are required
         int spaceRequired = InventoryName.ROLLBACK_LIST.getSize() - 9;
 
@@ -73,11 +81,7 @@ public class RollbackListMenu {
         int pagesRequired = (int) Math.ceil(backups / (double) spaceRequired);
 
         //Check if pageNumber supplied is greater than pagesRequired, if true set to last page
-        if (pageNumber > pagesRequired) {
-            pageNumber = pagesRequired;
-        } else if (pageNumber <= 0) {
-            pageNumber = 1;
-        }
+        pageNumber = Math.max(1, Math.min(pageNumber, pagesRequired));
 
         int backupsAlreadyPassed = spaceRequired * (pageNumber - 1);
         int backupsOnCurrentPage = Math.min(backups, Math.min(spaceRequired, backups - backupsAlreadyPassed));

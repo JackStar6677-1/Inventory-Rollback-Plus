@@ -514,7 +514,11 @@ public class MessageData {
     }
 
     public static String getNoBackupError(String name) {
-        return noBackup.replaceAll(nameVariable, name);
+        // OfflinePlayer#getName can be null for profiles that have not resolved
+        // a name. Use literal replacement so player names cannot be interpreted
+        // as regular-expression replacement tokens either.
+        String displayName = name == null || name.isBlank() ? "unknown player" : name;
+        return noBackup.replace(nameVariable, displayName);
     }
 
     public static String getNotOnlineError(String name) {
